@@ -1,0 +1,24 @@
+How to compile to .EXE
+=======================
+
+1) Install the .NET 8 SDK (Windows x64)
+   https://dotnet.microsoft.com/download/dotnet/8.0
+   Choose "SDK" (not Runtime only) — you need `dotnet` on the command line.
+
+2) Double-click:
+     compile.bat
+   Or in PowerShell from this folder:
+     .\build\Build-Setup.ps1
+
+3) Output (self-contained .exe — no .NET install needed on other PCs to RUN them):
+     dist\AccountingInstaller\Setup.exe
+     dist\AccountingInstaller\Accounting.Api.exe
+
+   Copy the whole "AccountingInstaller" folder to another PC, or zip it.
+
+Notes
+-----
+- "dotnet build" alone creates DLLs in bin\ — for standalone .exe you use "dotnet publish"
+  with -r win-x64 --self-contained true (already in Build-Setup.ps1).
+- If compile.bat says dotnet was not found, restart the terminal after installing the SDK,
+  or add "C:\Program Files\dotnet" to your PATH.

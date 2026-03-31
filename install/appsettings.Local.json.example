@@ -1,0 +1,13 @@
+{
+  "Api": {
+    "EnableSwagger": true
+  },
+  "Database": {
+    "Provider": "SqlServer",
+    "AutoProvision": false,
+    "AutoInstallSsms": false
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=.\\SQLEXPRESS;Database=AccountingDb;Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+  }
+}

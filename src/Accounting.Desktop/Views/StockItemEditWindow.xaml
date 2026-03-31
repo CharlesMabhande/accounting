@@ -1,0 +1,100 @@
+<Window x:Class="Accounting.Desktop.Views.StockItemEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ct="clr-namespace:Accounting.Desktop.Controls"
+        Title="Stock item"
+        Width="540"
+        Height="720"
+        MinWidth="480"
+        Icon="pack://application:,,,/Assets/CharlzTechLogo.png"
+        Background="{DynamicResource Brush.SurfacePage}"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize">
+  <DockPanel LastChildFill="True">
+    <ct:BrandedFormHeader DockPanel.Dock="Top"
+                          Title="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
+                          Subtitle="Inventory item"
+                          IconGlyph="&#xE8F2;" />
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
+    <Grid Margin="16">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+      <StackPanel Grid.Row="0">
+        <TextBlock Margin="0,0,0,4" Text="Code" Foreground="{DynamicResource Brush.TextSecondary}" />
+        <TextBox x:Name="CodeBox" Margin="0,0,0,8" />
+        <TextBlock Margin="0,0,0,4" Text="Description" Foreground="{DynamicResource Brush.TextSecondary}" />
+        <TextBox x:Name="DescBox" Margin="0,0,0,8" />
+        <TextBlock Margin="0,0,0,4" Text="Long description (optional)" Foreground="{DynamicResource Brush.TextSecondary}" />
+        <TextBox x:Name="LongDescBox"
+                 Margin="0,0,0,8"
+                 AcceptsReturn="True"
+                 Height="56"
+                 TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto" />
+        <TextBlock Margin="0,0,0,4" Text="Alternate code" Foreground="{DynamicResource Brush.TextSecondary}" />
+        <TextBox x:Name="AltCodeBox" Margin="0,0,0,8" />
+        <TextBlock Margin="0,0,0,4" Text="Unit of measure" Foreground="{DynamicResource Brush.TextSecondary}" />
+        <TextBox x:Name="UomBox" Margin="0,0,0,8" MaxLength="12" />
+        <TextBlock Margin="0,0,0,4" Text="Inventory ledger" Foreground="{DynamicResource Brush.TextSecondary}" />
+        <ComboBox x:Name="InvCombo" Margin="0,0,0,8" DisplayMemberPath="Display" />
+        <TextBlock Margin="0,0,0,4" Text="Cost of sales ledger" Foreground="{DynamicResource Brush.TextSecondary}" />
+        <ComboBox x:Name="CosCombo" Margin="0,0,0,8" DisplayMemberPath="Display" />
+        <TextBlock Margin="0,0,0,4" Text="Dimensions (buy / sell) — optional" Foreground="{DynamicResource Brush.TextSecondary}" />
+        <Grid Margin="0,0,0,8">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="8" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <TextBlock Text="Buy L/W/H" Foreground="{DynamicResource Brush.TextMuted}" />
+          <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
+            <TextBox x:Name="BuyLBox" Width="56" Margin="0,0,4,0" />
+            <TextBox x:Name="BuyWBox" Width="56" Margin="0,0,4,0" />
+            <TextBox x:Name="BuyHBox" Width="56" />
+          </StackPanel>
+          <TextBlock Grid.Column="2" Text="Sell L/W/H" Foreground="{DynamicResource Brush.TextMuted}" />
+          <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal">
+            <TextBox x:Name="SellLBox" Width="56" Margin="0,0,4,0" />
+            <TextBox x:Name="SellWBox" Width="56" Margin="0,0,4,0" />
+            <TextBox x:Name="SellHBox" Width="56" />
+          </StackPanel>
+          <TextBlock Grid.Row="2" Margin="0,8,0,0" Text="Weight / unit" Foreground="{DynamicResource Brush.TextMuted}" />
+          <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,22,0,0" Orientation="Horizontal">
+            <TextBox x:Name="WeightBox" Width="72" Margin="0,0,4,0" />
+            <TextBox x:Name="WeightUnitBox" Width="48" />
+          </StackPanel>
+        </Grid>
+        <TextBlock Margin="0,0,0,4" Text="Measurement notes" Foreground="{DynamicResource Brush.TextSecondary}" />
+        <TextBox x:Name="MeasBox" Margin="0,0,0,8" />
+        <TextBlock Margin="0,0,0,4" Text="Target GP %" Foreground="{DynamicResource Brush.TextSecondary}" />
+        <TextBox x:Name="GpBox" Margin="0,0,0,8" Width="100" HorizontalAlignment="Left" />
+        <StackPanel Margin="0,0,0,8" Orientation="Horizontal">
+          <CheckBox x:Name="ActiveBox" Content="Active" IsChecked="True" Margin="0,0,16,0" />
+          <CheckBox x:Name="ServiceBox" Content="Service (non-stock)" Margin="0,0,16,0" />
+          <CheckBox x:Name="SerialBox" Content="Serial" Margin="0,0,16,0" />
+          <CheckBox x:Name="LotsBox" Content="Lots" />
+        </StackPanel>
+      </StackPanel>
+      <StackPanel Grid.Row="1"
+                  HorizontalAlignment="Right"
+                  Margin="0,12,0,0"
+                  Orientation="Horizontal">
+        <Button MinWidth="88" Padding="10,6" Content="Cancel" IsCancel="True" Click="Cancel_Click" />
+        <Button MinWidth="88"
+                Margin="8,0,0,0"
+                Padding="10,6"
+                Content="Save"
+                IsDefault="True"
+                Click="Save_Click" />
+      </StackPanel>
+    </Grid>
+  </ScrollViewer>
+  </DockPanel>
+</Window>

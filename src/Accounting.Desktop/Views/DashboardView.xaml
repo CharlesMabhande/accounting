@@ -1,0 +1,289 @@
+<UserControl x:Class="Accounting.Desktop.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ct="clr-namespace:Accounting.Desktop.Controls"
+             Loaded="OnLoaded">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,0,12,8">
+    <StackPanel>
+      <StackPanel Margin="0,0,0,8" Orientation="Horizontal">
+        <ct:BrandedLogo VerticalAlignment="Center"
+                        LogoHeight="48"
+                        CornerRadius="14" />
+        <StackPanel Margin="16,4,0,0" VerticalAlignment="Center">
+          <TextBlock FontSize="22"
+                     FontWeight="SemiBold"
+                     Foreground="{DynamicResource Brush.TextPrimary}"
+                     Text="Dashboard" />
+          <TextBlock Margin="0,4,0,0"
+                     Foreground="{DynamicResource Brush.TextSecondary}"
+                     FontSize="13"
+                     TextWrapping="Wrap"
+                     Text="Quick tasks, process shortcuts, and API health. Open modules from the tree or use the tiles below." />
+        </StackPanel>
+      </StackPanel>
+
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="16" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Related tasks -->
+        <Border Grid.Row="0"
+                Grid.Column="0"
+                Padding="16"
+                Background="{DynamicResource Brush.SurfacePanel}"
+                BorderBrush="{DynamicResource Brush.BorderSubtle}"
+                BorderThickness="1"
+                CornerRadius="8">
+          <Border.Effect>
+            <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.08" Color="#001B44" />
+          </Border.Effect>
+          <StackPanel>
+            <TextBlock FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.SectionHeader}"
+                       Text="Related tasks" />
+            <UniformGrid Margin="0,12,0,0" Columns="2">
+              <Button MinHeight="72"
+                      Margin="4"
+                      Click="TaskApi_Click"
+                      ToolTip="Ping the API">
+                <StackPanel HorizontalAlignment="Center">
+                  <TextBlock HorizontalAlignment="Center"
+                             FontFamily="{DynamicResource Font.Icon}"
+                             FontSize="26"
+                             Foreground="{DynamicResource Brush.Accent}"
+                             Text="&#xE839;" />
+                  <TextBlock Margin="0,4,0,0" TextAlignment="Center" Text="API status" />
+                </StackPanel>
+              </Button>
+              <Button MinHeight="72"
+                      Margin="4"
+                      Click="TaskCompanies_Click"
+                      ToolTip="Open company maintenance">
+                <StackPanel HorizontalAlignment="Center">
+                  <TextBlock HorizontalAlignment="Center"
+                             FontFamily="{DynamicResource Font.Icon}"
+                             FontSize="26"
+                             Foreground="{DynamicResource Brush.Accent}"
+                             Text="&#xE774;" />
+                  <TextBlock Margin="0,4,0,0" TextAlignment="Center" Text="Companies" />
+                </StackPanel>
+              </Button>
+            </UniformGrid>
+          </StackPanel>
+        </Border>
+
+        <!-- Other / quick links -->
+        <Border Grid.Row="0"
+                Grid.Column="2"
+                Padding="16"
+                Background="{DynamicResource Brush.SurfacePanel}"
+                BorderBrush="{DynamicResource Brush.BorderSubtle}"
+                BorderThickness="1"
+                CornerRadius="8">
+          <Border.Effect>
+            <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.08" Color="#001B44" />
+          </Border.Effect>
+          <StackPanel>
+            <TextBlock FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.SectionHeader}"
+                       Text="Other" />
+            <UniformGrid Margin="0,12,0,0" Columns="3">
+              <Button Margin="3" Padding="6,8" Click="QuickLedger_Click" ToolTip="General ledger">
+                <StackPanel HorizontalAlignment="Center">
+                  <TextBlock HorizontalAlignment="Center" FontFamily="{DynamicResource Font.Icon}" FontSize="18" Foreground="{DynamicResource Brush.Accent}" Text="&#xE8D5;" />
+                  <TextBlock Margin="0,2,0,0" FontSize="11" TextAlignment="Center" Text="GL" />
+                </StackPanel>
+              </Button>
+              <Button Margin="3" Padding="6,8" Click="QuickAr_Click" ToolTip="Sales / AR">
+                <StackPanel HorizontalAlignment="Center">
+                  <TextBlock HorizontalAlignment="Center" FontFamily="{DynamicResource Font.Icon}" FontSize="18" Foreground="{DynamicResource Brush.Accent}" Text="&#xE8D7;" />
+                  <TextBlock Margin="0,2,0,0" FontSize="11" TextAlignment="Center" Text="AR" />
+                </StackPanel>
+              </Button>
+              <Button Margin="3" Padding="6,8" Click="QuickAp_Click" ToolTip="Purchases / AP">
+                <StackPanel HorizontalAlignment="Center">
+                  <TextBlock HorizontalAlignment="Center" FontFamily="{DynamicResource Font.Icon}" FontSize="18" Foreground="{DynamicResource Brush.Accent}" Text="&#xE8B8;" />
+                  <TextBlock Margin="0,2,0,0" FontSize="11" TextAlignment="Center" Text="AP" />
+                </StackPanel>
+              </Button>
+              <Button Margin="3" Padding="6,8" Click="QuickBank_Click" ToolTip="Bank">
+                <StackPanel HorizontalAlignment="Center">
+                  <TextBlock HorizontalAlignment="Center" FontFamily="{DynamicResource Font.Icon}" FontSize="18" Foreground="{DynamicResource Brush.Accent}" Text="&#xE8C7;" />
+                  <TextBlock Margin="0,2,0,0" FontSize="11" TextAlignment="Center" Text="Bank" />
+                </StackPanel>
+              </Button>
+              <Button Margin="3" Padding="6,8" Click="QuickStock_Click" ToolTip="Stock">
+                <StackPanel HorizontalAlignment="Center">
+                  <TextBlock HorizontalAlignment="Center" FontFamily="{DynamicResource Font.Icon}" FontSize="18" Foreground="{DynamicResource Brush.Accent}" Text="&#xE8F2;" />
+                  <TextBlock Margin="0,2,0,0" FontSize="11" TextAlignment="Center" Text="Stock" />
+                </StackPanel>
+              </Button>
+              <Button Margin="3" Padding="6,8" Click="QuickImport_Click" ToolTip="Import">
+                <StackPanel HorizontalAlignment="Center">
+                  <TextBlock HorizontalAlignment="Center" FontFamily="{DynamicResource Font.Icon}" FontSize="18" Foreground="{DynamicResource Brush.Accent}" Text="&#xE896;" />
+                  <TextBlock Margin="0,2,0,0" FontSize="11" TextAlignment="Center" Text="Import" />
+                </StackPanel>
+              </Button>
+            </UniformGrid>
+            <TextBlock Margin="0,14,0,4"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.ReportAccent}"
+                       Text="Reports" />
+            <ComboBox x:Name="ReportCombo" Margin="0,4,0,8" IsEditable="False">
+              <ComboBoxItem Content="Trial balance (use Reporting API / Swagger)" IsSelected="True" />
+              <ComboBoxItem Content="Ledger enquiry (Swagger)" />
+            </ComboBox>
+            <Button HorizontalAlignment="Left"
+                    Padding="12,6"
+                    Style="{DynamicResource AccentPrimaryButton}"
+                    Click="RunReport_Click">
+              <StackPanel Orientation="Horizontal">
+                <TextBlock VerticalAlignment="Center"
+                           FontFamily="{DynamicResource Font.Icon}"
+                           FontSize="14"
+                           Foreground="{DynamicResource Brush.TextOnDark}"
+                           Text="&#xE9D9;" />
+                <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" Text="Run report (open Swagger)" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
+        </Border>
+
+        <!-- Process flow + Recently used -->
+        <Border Grid.Row="1"
+                Grid.Column="0"
+                Margin="0,16,0,0"
+                Padding="16"
+                Background="{DynamicResource Brush.SurfacePanel}"
+                BorderBrush="{DynamicResource Brush.BorderSubtle}"
+                BorderThickness="1"
+                CornerRadius="8">
+          <Border.Effect>
+            <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.08" Color="#001B44" />
+          </Border.Effect>
+          <StackPanel>
+            <TextBlock FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.SectionHeader}"
+                       Text="Process flow" />
+            <StackPanel Margin="0,16,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
+              <Border Padding="14,10"
+                      Background="{DynamicResource Brush.AccentSoft}"
+                      BorderBrush="{DynamicResource Brush.Accent}"
+                      BorderThickness="1"
+                      CornerRadius="6">
+                <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextPrimary}" Text="Master data" />
+              </Border>
+              <TextBlock Margin="12,0"
+                         VerticalAlignment="Center"
+                         FontSize="20"
+                         Foreground="{DynamicResource Brush.Accent}"
+                         Text="→" />
+              <Border Padding="14,10"
+                      Background="{DynamicResource Brush.AccentSurface}"
+                      BorderBrush="{DynamicResource Brush.Accent}"
+                      BorderThickness="1"
+                      CornerRadius="6">
+                <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextPrimary}" Text="Transactions" />
+              </Border>
+              <TextBlock Margin="12,0"
+                         VerticalAlignment="Center"
+                         FontSize="20"
+                         Foreground="{DynamicResource Brush.Accent}"
+                         Text="→" />
+              <Border Padding="14,10"
+                      Background="{DynamicResource Brush.CyanSoft}"
+                      BorderBrush="{DynamicResource Brush.Cyan}"
+                      BorderThickness="1"
+                      CornerRadius="6">
+                <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextPrimary}" Text="Reporting" />
+              </Border>
+            </StackPanel>
+            <TextBlock Margin="0,12,0,0"
+                       Foreground="{DynamicResource Brush.TextSecondary}"
+                       FontSize="12"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
+                       Text="Companies → Journals / invoices → enquiries &amp; exports" />
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1"
+                Grid.Column="2"
+                Margin="0,16,0,0"
+                Padding="16"
+                Background="{DynamicResource Brush.SurfacePanel}"
+                BorderBrush="{DynamicResource Brush.BorderSubtle}"
+                BorderThickness="1"
+                CornerRadius="8">
+          <Border.Effect>
+            <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.08" Color="#001B44" />
+          </Border.Effect>
+          <StackPanel>
+            <TextBlock FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.SectionHeader}"
+                       Text="Recently used" />
+            <ListBox x:Name="RecentList"
+                     Margin="0,12,0,0"
+                     MinHeight="120"
+                     MaxHeight="220"
+                     BorderBrush="{DynamicResource Brush.BorderSubtle}"
+                     MouseDoubleClick="RecentList_OnMouseDoubleClick"
+                     ItemsSource="{Binding RecentModules, RelativeSource={RelativeSource AncestorType=Window}}"
+                     DisplayMemberPath="Title" />
+            <TextBlock Margin="0,8,0,0"
+                       FontSize="11"
+                       Foreground="{DynamicResource Brush.TextMuted}"
+                       Text="Double-click an item to reopen the module." />
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <!-- API strip -->
+      <Border Margin="0,20,0,0"
+              Padding="16"
+              Background="{DynamicResource Brush.SurfaceMuted}"
+              BorderBrush="{DynamicResource Brush.BorderSubtle}"
+              BorderThickness="1"
+              CornerRadius="8">
+        <StackPanel>
+          <TextBlock FontWeight="SemiBold"
+                     Foreground="{DynamicResource Brush.TextPrimary}"
+                     Text="API service" />
+          <TextBlock x:Name="BaseUrlText"
+                     Margin="0,4,0,0"
+                     FontFamily="Consolas"
+                     FontSize="12"
+                     Foreground="{DynamicResource Brush.TextSecondary}" />
+          <StackPanel Margin="0,12,0,0" Orientation="Horizontal">
+            <Ellipse x:Name="StatusDot" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <TextBlock x:Name="StatusText" VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextPrimary}" />
+          </StackPanel>
+          <Button Margin="0,14,0,0"
+                  HorizontalAlignment="Left"
+                  Padding="12,6"
+                  Click="Refresh_Click">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock VerticalAlignment="Center"
+                         FontFamily="{DynamicResource Font.Icon}"
+                         FontSize="14"
+                         Foreground="{DynamicResource Brush.Accent}"
+                         Text="&#xE149;" />
+              <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" Text="Test connection" />
+            </StackPanel>
+          </Button>
+          <TextBlock x:Name="CompanySummary"
+                     Margin="0,16,0,0"
+                     Foreground="{DynamicResource Brush.TextSecondary}"
+                     TextWrapping="Wrap" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

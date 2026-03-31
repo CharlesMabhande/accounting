@@ -1,0 +1,121 @@
+Using SQL Server Management Studio (SSMS) with Accounting
+=========================================================
+
+The Accounting API stores data in **SQL Server** (central database
+on an instance you manage). SSMS connects to the **same** server and database as
+`ConnectionStrings:DefaultConnection` in appsettings.json / appsettings.Local.json.
+
+Prerequisites
+-------------
+1. Install one of:
+   - **SQL Server Express** (includes LocalDB) — good for single-PC dev
+   - **SQL Server** (full or Express named instance, e.g. .\SQLEXPRESS)
+2. Install **SSMS** (SQL Server Management Studio) from Microsoft — optional but
+   recommended for browsing tables and running ad hoc SQL.
+
+The app must use **Database:Provider** = **SqlServer**. SQLite stores a file;
+SSMS does not open SQLite files.
+
+Automatic provisioning (Windows, optional)
+------------------------------------------
+When **Database:AutoProvision** is **true** (see **appsettings.Development.json** or
+**appsettings.Local.json**), the API on startup can:
+
+- Start LocalDB and/or install **SQL Server Express** via **winget** if nothing answers.
+- If **Database:AutoInstallSsms** is **true**, install **SQL Server Management Studio**
+  via **winget** when SSMS is not detected (folder/registry scan).
+
+Requires **winget** (App Installer from the Microsoft Store). SQL Express + SSMS are
+large downloads; the first run may take a long time. **UAC** or policy may still prompt
+on some PCs — run the API elevated once if silent install fails.
+
+**Production** defaults (**appsettings.json**) keep **AutoProvision** / **AutoInstallSsms**
+**false** so servers do not pull installers unexpectedly.
+
+Tables and seed data are still created by EF Core **EnsureCreated** + **AccountingDbSeeder**
+after the database exists.
+
+Match the connection string to SSMS
+-----------------------------------
+The SSMS “Connect to Server” dialog must use the same **Server** name as the
+`Server=` part of `DefaultConnection`. The database name must match `Database=`
+(default: **AccountingDb**).
+
+Example (LocalDB — default in appsettings):
+  Server name:     (localdb)\mssqllocaldb
+  Authentication:  Windows Authentication
+  Database:        AccountingDb   (expand Databases after connect)
+
+Example (SQL Express on the same machine — same instance as in SSMS Object Explorer):
+  Server name:     .\SQLEXPRESS
+  (or COMPUTERNAME\SQLEXPRESS, e.g. CHARLZTECH\SQLEXPRESS)
+
+Copy the **Server name** from your SSMS connection dialog into **DefaultConnection** as **Server=...**
+The API creates database **AccountingDb** and tables on startup (no script run inside SSMS required).
+
+SQL Server authentication (login + password)
+-------------------------------------------
+Use the same mode in SSMS as in your connection string.
+
+If appsettings uses **User Id** and **Password** (not Trusted_Connection):
+
+  Server name:     (same as Server= in DefaultConnection, e.g. .\SQLEXPRESS)
+  Authentication:  SQL Server Authentication
+  Login:           (same as User Id=)
+  Password:        (same as Password=)
+  Database:        AccountingDb   (after connect, or set in connection properties)
+
+Example connection string (see also appsettings.Local.SqlAuth.json.example):
+
+  Server=.\SQLEXPRESS;Database=AccountingDb;User Id=AccountingApp;Password=***;
+  TrustServerCertificate=True;MultipleActiveResultSets=true
+
+Install with SQL auth + optional create DB:
+
+  .\Install-Accounting.ps1 -Server ".\SQLEXPRESS" -Database AccountingDb `
+    -SqlUser "AccountingApp" -SqlPassword "YourStrong!Pass" -CreateDatabase
+
+Or avoid putting the password on the command line:
+
+  .\Install-Accounting.ps1 -Server ".\SQLEXPRESS" -Database AccountingDb `
+    -SqlUser "AccountingApp" -SqlPasswordFile "C:\secure\db-password.txt" -CreateDatabase
+
+The SQL login must have permission to CREATE DATABASE (or a DBA creates the empty
+database and grants dbo on AccountingDb to the app login).
+
+Installation scripts (create the database before first API run)
+-----------------------------------------------------------------
+From the published **AccountingInstaller** folder (or **install** in the repo):
+
+  PowerShell:
+    .\Install-Accounting.ps1 -Provider SqlServer -Server "(localdb)\mssqllocaldb" -Database AccountingDb -CreateDatabase
+
+  Or only create the empty database (requires **sqlcmd** on PATH — ships with SSMS / SQL tools):
+    .\Install-SqlServerDatabase.ps1 -Server "(localdb)\mssqllocaldb" -Database AccountingDb
+
+  With SQL Server authentication:
+    .\Install-SqlServerDatabase.ps1 -Server ".\SQLEXPRESS" -Database AccountingDb `
+      -UserName "sa" -Password "YourStrong!Pass"
+    .\Install-SqlServerDatabase.ps1 -Server ".\SQLEXPRESS" -Database AccountingDb `
+      -UserName "AccountingApp" -PasswordFile "C:\secure\db-password.txt"
+
+  Or run **sql\CreateDatabase.sql** in SSMS while connected to **master**.
+
+If **CREATE DATABASE** is not allowed for your login, a DBA creates the empty
+database; then start the API — it will still create **tables** via EF Core.
+
+After the API runs once
+-----------------------
+- **SqlServerDatabaseBootstrapper** may have created the empty database (or you did
+  via script/SSMS).
+- **EnsureCreated** + **AccountingDbSeeder** create tables and initial company/chart.
+- In SSMS: Databases → AccountingDb → Tables.
+
+LocalDB not running
+-------------------
+  sqllocaldb start mssqllocaldb
+
+SQLite (portable, no SSMS)
+--------------------------
+Set **Database:Provider** to **Sqlite** and **SqlitePath** — data is in a single
+file (e.g. Data\Accounting.db). Use a SQLite tool instead of SSMS.

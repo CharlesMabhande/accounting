@@ -1,0 +1,21 @@
+Redistribution notes
+====================
+
+Included in a self-contained publish
+------------------------------------
+- The Accounting.Api application and embedded .NET 8 runtime (win-x64).
+- EF Core SQL Server + SQLite providers. Default configuration targets SQL Server (LocalDB) so you can use SSMS — see Connect-with-SSMS.txt.
+
+Not included (by policy / license / size)
+-----------------------------------------
+- Microsoft SQL Server / Express / LocalDB installers. Use an existing engine (SSMS implies you usually have one) or install SQL Server separately.
+
+Offline use
+-----------
+- No NuGet or internet is required on the target PC when you distribute the contents of dist\AccountingApi\ (already built).
+- For building from source offline, run build\Prepare-Offline.ps1 once while online, then ship the repo with the packages\ folder.
+
+Switching database
+------------------
+- SQL Server (default, SSMS): "Database": { "Provider": "SqlServer" } and ConnectionStrings:DefaultConnection
+- SQLite (portable file, no SSMS): "Database": { "Provider": "Sqlite", "SqlitePath": "Data/Accounting.db" }

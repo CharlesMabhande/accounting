@@ -1,0 +1,44 @@
+<UserControl x:Class="Accounting.Desktop.Views.CustomerStatementsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <StackPanel Grid.Row="0">
+      <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextPrimary}" Text="Customer statements" />
+      <TextBlock Margin="0,4,0,0" Foreground="{DynamicResource Brush.TextSecondary}" TextWrapping="Wrap"
+                 Text="Search by code or name, select a customer, choose the period, then view, print, or save as PDF." />
+    </StackPanel>
+    <StackPanel Grid.Row="1" Margin="0,12,0,8">
+      <TextBlock Foreground="{DynamicResource Brush.TextSecondary}" Text="Search" />
+      <TextBox x:Name="SearchBox" Margin="0,4,0,8" Padding="6" TextChanged="SearchBox_OnTextChanged" />
+      <StackPanel Orientation="Horizontal">
+        <Button Padding="12,6" Content="Refresh" Click="Refresh_Click" />
+        <Button Margin="8,0,0,0" Padding="12,6" Content="View statement…" Style="{DynamicResource AccentPrimaryButton}" Click="ViewStatement_Click" />
+        <Button Margin="8,0,0,0" Padding="12,6" Content="Export CSV…" Click="ExportCsv_Click" />
+        <Button Margin="8,0,0,0" Padding="12,6" Content="Export PDF…" Click="ExportPdf_Click" />
+        <TextBlock x:Name="StatusText" Margin="16,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextSecondary}" />
+      </StackPanel>
+    </StackPanel>
+    <DataGrid x:Name="Grid"
+              Grid.Row="2"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              HeadersVisibility="Column"
+              GridLinesVisibility="Horizontal"
+              RowHeaderWidth="0"
+              AlternatingRowBackground="{DynamicResource Brush.SurfaceMuted}"
+              CanUserAddRows="False"
+              SelectionMode="Single"
+              MouseDoubleClick="Grid_OnMouseDoubleClick">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="100" />
+        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
+        <DataGridTextColumn Header="Currency" Binding="{Binding CurrencyCode}" Width="80" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</UserControl>

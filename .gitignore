@@ -1,0 +1,12 @@
+bin/
+obj/
+packages/
+dist/
+.vs/
+appsettings.Local.json
+**/Data/*.db
+*.user
+*.suo
+*.cache
+appsettings.Development.local.json
+appsettings.*.local.json

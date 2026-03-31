@@ -1,0 +1,44 @@
+<Window x:Class="Accounting.Desktop.Views.RoleEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ct="clr-namespace:Accounting.Desktop.Controls"
+        Title="Role"
+        Width="520"
+        Height="560"
+        Icon="pack://application:,,,/Assets/CharlzTechLogo.png"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Brush.SurfacePage}">
+  <DockPanel LastChildFill="True">
+    <ct:BrandedFormHeader DockPanel.Dock="Top"
+                          Title="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
+                          Subtitle="Roles and permissions"
+                          IconGlyph="&#xE72E;" />
+    <Grid Margin="12">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <StackPanel Grid.Row="0">
+      <TextBlock Foreground="{DynamicResource Brush.TextSecondary}" Text="Role name" />
+      <TextBox x:Name="NameBox" Margin="0,4,0,12" Padding="6" />
+      <TextBlock Foreground="{DynamicResource Brush.TextSecondary}" Text="Permissions" />
+    </StackPanel>
+    <ScrollViewer Grid.Row="1" Margin="0,4,0,0" VerticalScrollBarVisibility="Auto">
+      <ItemsControl x:Name="PermItems">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <CheckBox Content="{Binding Name}"
+                      IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                      Margin="0,2" />
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+    <StackPanel Grid.Row="2" Margin="0,12,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
+      <Button Padding="12,6" Content="Cancel" IsCancel="True" Click="Cancel_Click" />
+      <Button Margin="8,0,0,0" Padding="12,6" Content="Save" IsDefault="True" Click="Save_Click" />
+    </StackPanel>
+  </Grid>
+  </DockPanel>
+</Window>

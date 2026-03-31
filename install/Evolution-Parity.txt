@@ -1,0 +1,87 @@
+ERP conceptual parity with CharlzTech Accounting
+================================================
+
+This project does not copy proprietary code, SQL scripts, or DLLs from any
+third-party ERP product. Those require their own licenses.
+
+We implement behaviour typical of enterprise ERP systems:
+
+Financial core (GL / sub-ledgers)
+-----------------------------------
+- Double-entry general ledger; journal batches tied to an open fiscal period.
+- Posting blocked when no fiscal period covers the document date, or when the
+  period/year is closed (period locking).
+- Chart of accounts per company; trial balance and ledger reports; Excel export
+  uses OpenXML-family tooling (ClosedXML).
+- Document numbering via DocumentSequence (company-scoped keys).
+- Tax codes and VAT-style input/output accounts in the seeded chart.
+
+Sales & debtors (AR)
+--------------------
+- Customer master, sales orders, customer invoices; AR control accounts per customer.
+
+Purchasing & creditors (AP)
+---------------------------
+- Supplier master, purchase orders, supplier invoices, GRN; GRNI-style liability.
+
+Cash & banking
+--------------
+- Cashbook transactions; bank accounts linked for receipts/payments.
+
+Inventory & manufacturing
+-------------------------
+- Stock items, warehouses, movements, BOM, work orders, material issues to WIP.
+
+Fixed assets & payroll
+----------------------
+- Asset register; payroll runs with GL posting hooks.
+
+Projects & analytics
+--------------------
+- Cost centres and project jobs for analytical posting.
+
+Extended ERP (installer-style modules)
+--------------------------------------
+- Branches, departments, employees, CRM leads/contacts, purchase requisitions,
+  budgets, service tickets, company ERP module toggles (see API Swagger).
+
+SQL Server + SSMS (deployment)
+-------------------------------
+- Production-style deployment uses **SQL Server** (Express, full, or LocalDB).
+- The API can **create the empty database** on startup if your Windows/SQL login
+  is allowed to CREATE DATABASE (same as running Install-SqlServerDatabase.ps1
+  or sql\CreateDatabase.sql in SSMS).
+- Tables and seed data are applied when the API starts (EF Core EnsureCreated +
+  AccountingDbSeeder). Use **Connect-with-SSMS.txt** to browse data in SSMS.
+
+Module / folder mapping (informational)
+---------------------------------------
+- GET /api/modules — module codes for this application.
+- GET /api/modules/evolution — maps common third-party installer folder
+  names (AP, CM, …) to our modules (documentation only).
+
+Optional third-party installs (not bundled)
+-------------------------------------------
+- SQL Server Express / LocalDB + SSMS (Microsoft).
+- ClosedXML via NuGet for Excel (OpenXML ecosystem).
+
+Full ERP surface in this codebase (API)
+---------------------------------------
+- Financial: GL, journals, AP/AR invoices, cashbook, tax, reporting, fiscal periods, budgets, multi-currency rates
+- Organization: branches, departments, employees
+- CRM: sales leads, contacts
+- Procurement: purchase orders, purchase requisitions
+- Inventory: stock, warehouses, GRN, BOM, work orders
+- Operations: fixed assets, payroll, projects, cost centres, service tickets
+- GET /api/erp/capabilities — high-level capability list
+- GET /api/companies/{id}/erp/* — extended ERP endpoints (see Swagger)
+- Module toggles: POST /api/companies/{id}/erp/modules — when a module is disabled, write operations for that area return 400.
+- Procurement: submit draft PR, then approve or reject submitted PRs.
+- Manufacturing: POST .../erp/work-orders/{id}/issue-materials — issues BOM components to WIP (ledger 1500) and stock movements.
+
+Schema changes use EnsureCreated on startup; for production upgrades, plan EF migrations against your SQL provider (or recreate the database after schema changes).
+
+Installer layout note (informational)
+--------------------------------------
+We analyzed common ERP full-release folder layouts (e.g. top-level folders AP, AM, BM, CM, DM, EFT, RetailPOS, VAT201, Assembly, etc.) for documentation only.
+What we implement is parity of concepts, not binary compatibility with any vendor installer.

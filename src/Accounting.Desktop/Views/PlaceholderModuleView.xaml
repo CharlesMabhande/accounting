@@ -1,0 +1,44 @@
+<UserControl x:Class="Accounting.Desktop.Views.PlaceholderModuleView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ct="clr-namespace:Accounting.Desktop.Controls">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8,4,16,16">
+    <StackPanel MaxWidth="720">
+      <StackPanel Margin="0,0,0,16" Orientation="Horizontal">
+        <ct:BrandedLogo LogoHeight="44"
+                        CornerRadius="12" />
+        <StackPanel Margin="14,2,0,0" VerticalAlignment="Center">
+          <TextBlock x:Name="TitleText"
+                     FontSize="20"
+                     FontWeight="SemiBold"
+                     Foreground="{DynamicResource Brush.TextPrimary}" />
+          <TextBlock Margin="0,4,0,0"
+                     FontSize="12"
+                     Foreground="{DynamicResource Brush.TextMuted}"
+                     Text="Module placeholder" />
+        </StackPanel>
+      </StackPanel>
+      <Border Padding="16"
+              Background="{DynamicResource Brush.SurfaceMuted}"
+              BorderBrush="{DynamicResource Brush.BorderSubtle}"
+              BorderThickness="1"
+              CornerRadius="8">
+        <TextBlock x:Name="BodyText"
+                   FontSize="13"
+                   LineHeight="22"
+                   TextWrapping="Wrap"
+                   Foreground="{DynamicResource Brush.TextSecondary}" />
+      </Border>
+      <TextBlock Margin="0,12,0,0"
+                 FontSize="12"
+                 Foreground="{DynamicResource Brush.TextSecondary}"
+                 TextWrapping="Wrap"
+                 Text="Screens that show a data grid include Export CSV and Export PDF on the toolbar so you can take lists offline. Master-data screens (customers, suppliers, stock, banks, users, and similar) support Add / Edit / Delete where the API allows it." />
+      <TextBlock Margin="0,14,0,0"
+                 FontSize="12"
+                 Foreground="{DynamicResource Brush.TextMuted}"
+                 TextWrapping="Wrap"
+                 Text="CharlzTech Accounting is independent software. Features are implemented against this project’s API and domain model, inspired by typical ERP workflows—not a copy of any third-party product code or schema." />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

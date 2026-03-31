@@ -1,0 +1,39 @@
+<UserControl x:Class="Accounting.Desktop.Views.AuditTableSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <StackPanel Grid.Row="0">
+      <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextPrimary}" Text="Audit table settings" />
+      <TextBlock Margin="0,4,0,0" Foreground="{DynamicResource Brush.TextSecondary}" TextWrapping="Wrap"
+                 Text="Select entity types to record inserts, updates, and deletes in the global audit log (in addition to manual audit entries)." />
+    </StackPanel>
+    <StackPanel Grid.Row="1" Margin="0,12,0,8" Orientation="Horizontal">
+      <Button Padding="12,6" Content="Refresh" Click="Refresh_Click" />
+      <Button Margin="8,0,0,0" Padding="12,6" Content="Save" Click="Save_Click" Style="{DynamicResource AccentPrimaryButton}" />
+      <Button Margin="8,0,0,0" Padding="12,6" Content="Export CSV…" Click="ExportCsv_Click" />
+      <Button Margin="8,0,0,0" Padding="12,6" Content="Export PDF…" Click="ExportPdf_Click" />
+      <TextBlock x:Name="StatusText" Margin="16,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextSecondary}" />
+    </StackPanel>
+    <DataGrid x:Name="Grid"
+              Grid.Row="2"
+              AutoGenerateColumns="False"
+              HeadersVisibility="Column"
+              GridLinesVisibility="Horizontal"
+              RowHeaderWidth="0"
+              AlternatingRowBackground="{DynamicResource Brush.SurfaceMuted}"
+              CanUserAddRows="False">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Entity" Binding="{Binding EntityTypeName}" Width="2*" IsReadOnly="True" />
+        <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding IsEnabled}" Width="80" />
+        <DataGridCheckBoxColumn Header="Insert" Binding="{Binding AuditInserts}" Width="70" />
+        <DataGridCheckBoxColumn Header="Update" Binding="{Binding AuditUpdates}" Width="70" />
+        <DataGridCheckBoxColumn Header="Delete" Binding="{Binding AuditDeletes}" Width="70" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</UserControl>

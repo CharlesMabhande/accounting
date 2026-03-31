@@ -1,0 +1,26 @@
+Optional files for offline PCs (place in redist\ next to AccountingOfflineSetup.exe)
+====================================================================================
+
+The Accounting API publish is self-contained: it does NOT need the .NET SDK or runtime
+installed separately.
+
+You may still need these on a machine that has never had them:
+
+1) Microsoft Visual C++ Redistributable (x64)
+   - Often required by SQL Server native clients and some native DLLs.
+   - Download while online from Microsoft, then copy the x64 installer here as e.g. VC_redist.x64.exe
+   - The offline setup wizard will run *.exe in redist\ with /install /quiet /norestart when possible.
+
+2) SQL Server Express LocalDB (for SSMS / (localdb)\mssqllocaldb)
+   - Download SqlLocalDB.msi or SQL Express with LocalDB from Microsoft while online.
+   - Place the .msi in redist\ — the wizard runs msiexec /quiet /norestart.
+
+3) SQL Server Express (full instance)
+   - Use SQLEXPR_x64_ENU.exe or similar; place in redist\ and run manually if silent
+     install flags differ for your build.
+
+4) SQLite mode
+   - No SQL Server required. After copy, edit appsettings.Local.json or run
+     Install-Accounting.ps1 -Provider Sqlite (from PowerShell).
+
+This file is copied to dist\AccountingOffline\redist\README.txt when you run build\Build-OfflineBundle.ps1.

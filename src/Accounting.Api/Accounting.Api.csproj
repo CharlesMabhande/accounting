@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Accounting.Api</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Accounting.Application\Accounting.Application.csproj" />
+    <ProjectReference Include="..\Accounting.Domain\Accounting.Domain.csproj" />
+    <ProjectReference Include="..\Accounting.Infrastructure\Accounting.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <!-- Stops a running host from locking bin\*.dll (MSB3026). taskkill hits published apphost; dotnet run uses dotnet.exe on the launch profile port (default 5151). -->
+  <Target Name="StopRunningApiHostBeforeBuild" BeforeTargets="Build" Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <Exec Command="taskkill /F /IM Accounting.Api.exe 2&gt;nul" IgnoreExitCode="true" />
+    <Exec Command="powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command &quot;Get-NetTCPConnection -LocalPort 5151 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $$_.OwningProcess -Force -ErrorAction SilentlyContinue }&quot;" IgnoreExitCode="true" />
+  </Target>
+</Project>

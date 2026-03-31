@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>Accounting.Bootstrapper</RootNamespace>
+    <AssemblyName>AccountingOfflineSetup</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Product>Accounting Offline Installer</Product>
+    <Description>Copies self-contained Accounting API and runs offline configuration (no Internet required).</Description>
+  </PropertyGroup>
+</Project>
