@@ -16,6 +16,12 @@
 
   -SkipSqlProbe: do not run sqlcmd to test the SQL Server connection.
   -AutoInstallSsms: if SSMS is missing, attempt winget install Microsoft.SQLServerManagementStudio (optional).
+
+  -Launch: start Accounting.Api.exe after configuration (Production).
+  -RegisterStartup: add Startup folder shortcut so the API starts at Windows login.
+  -LaunchDesktop: after a short delay, start Accounting.Desktop.exe (use with -Launch).
+
+  -ConnectionStringFile: path to a UTF-8 text file containing one line: full SQL connection string (same as SSMS). Skips -Server/-Database build.
 #>
 param(
     [string]$ApiPath = '',
@@ -27,12 +33,15 @@ param(
     [string]$SqlUser = '',
     [string]$SqlPassword = '',
     [string]$SqlPasswordFile = '',
+    [string]$ConnectionStringFile = '',
     [int]$HttpPort = 8080,
     [switch]$SkipFirewall,
     [switch]$Launch,
     [switch]$CreateDatabase,
     [switch]$SkipSqlProbe,
-    [switch]$AutoInstallSsms
+    [switch]$AutoInstallSsms,
+    [switch]$RegisterStartup,
+    [switch]$LaunchDesktop
 )
 
 $ErrorActionPreference = 'Stop'
@@ -54,30 +63,71 @@ function Test-SsmsInstalled {
     return $false
 }
 
+function Escape-ProcessArgument([string]$s) {
+    if ($null -eq $s) { return '""' }
+    if ($s -match '[\s"]') {
+        return '"' + ($s.Replace('\', '\\').Replace('"', '\"')) + '"'
+    }
+    return $s
+}
+
 function Test-SqlServerConnection {
     param(
         [string]$Server,
         [string]$SqlUser,
         [string]$SqlPassword
     )
-    if (-not (Test-Command 'sqlcmd')) {
-        Write-Warning "sqlcmd not found — cannot verify SQL Server connectivity. Install SQL Server (Express), SSMS, or SQL CMD tools; then re-run or use -CreateDatabase."
+    $sqlcmdExe = Get-Command sqlcmd -ErrorAction SilentlyContinue
+    if (-not $sqlcmdExe) {
+        Write-Warning 'sqlcmd not found - cannot verify SQL Server connectivity. Install SQL Server (Express), SSMS, or SQL CMD tools; then re-run or use -CreateDatabase.'
         return $false
     }
-    $probe = "SELECT 1"
+    $sArg = Escape-ProcessArgument $Server
+    $qArg = Escape-ProcessArgument 'SELECT 1'
     if ($SqlUser) {
-        $sqlcmdArgs = @('-S', $Server, '-b', '-U', $SqlUser, '-P', $SqlPassword, '-Q', $probe)
+        $uArg = Escape-ProcessArgument $SqlUser
+        $pArg = Escape-ProcessArgument $SqlPassword
+        $argLine = "-S $sArg -b -U $uArg -P $pArg -Q $qArg"
     }
     else {
-        $sqlcmdArgs = @('-S', $Server, '-b', '-E', '-Q', $probe)
+        $argLine = "-S $sArg -b -E -Q $qArg"
     }
-    & sqlcmd @sqlcmdArgs 2>$null | Out-Null
-    return ($LASTEXITCODE -eq 0)
+    # Use .NET Process + one argument string so -Q "SELECT 1" is never split. Redirect streams so stderr is not a PS error record (Stop / PS7).
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $sqlcmdExe.Source
+    $psi.Arguments = $argLine
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.CreateNoWindow = $true
+    $proc = New-Object System.Diagnostics.Process
+    $proc.StartInfo = $psi
+    try {
+        [void]$proc.Start()
+        $stdout = $proc.StandardOutput.ReadToEnd()
+        $stderr = $proc.StandardError.ReadToEnd()
+        $proc.WaitForExit()
+        if ($proc.ExitCode -ne 0) {
+            $detail = if (-not [string]::IsNullOrWhiteSpace($stderr)) { $stderr.Trim() } else { $stdout.Trim() }
+            if (-not [string]::IsNullOrWhiteSpace($detail)) {
+                Write-Warning "sqlcmd connection test failed (continuing install). Detail: $detail"
+            }
+            else {
+                Write-Warning 'sqlcmd connection test failed (continuing install). Repair ODBC Driver for SQL Server / LocalDB, or use -SkipSqlProbe.'
+            }
+            return $false
+        }
+        return $true
+    }
+    catch {
+        Write-Warning "sqlcmd probe could not run (continuing install): $_"
+        return $false
+    }
 }
 
 function Install-SsmsWithWinget {
     if (-not (Test-Command 'winget')) {
-        Write-Warning "winget not found. Install App Installer from the Microsoft Store to use -AutoInstallSsms, or install SSMS manually."
+        Write-Warning 'winget not found. Install App Installer from the Microsoft Store to use -AutoInstallSsms, or install SSMS manually.'
         return
     }
     Write-Host "Installing SQL Server Management Studio via winget (Microsoft.SQLServerManagementStudio)..." -ForegroundColor Cyan
@@ -110,9 +160,9 @@ function Build-SqlServerConnectionString {
         [void]$sb.Append("Password=").Append((Escape-DbConnectionStringValue $SqlPassword)).Append(';')
     }
     else {
-        [void]$sb.Append("Trusted_Connection=True;")
+        [void]$sb.Append('Trusted_Connection=True;')
     }
-    [void]$sb.Append("TrustServerCertificate=True;MultipleActiveResultSets=true")
+    [void]$sb.Append('TrustServerCertificate=True;MultipleActiveResultSets=true')
     return $sb.ToString()
 }
 
@@ -154,35 +204,78 @@ if (-not (Test-Path $exe)) {
 $localJson = Join-Path $ApiPath 'appsettings.Local.json'
 
 if ($Provider -eq 'SqlServer') {
-    if ($Server -match 'localdb' -and (Test-Command 'sqllocaldb')) {
-        Write-Host "Ensuring SQL Server LocalDB is running..." -ForegroundColor Cyan
-        try {
-            sqllocaldb start 'mssqllocaldb' 2>$null | Out-Null
-        } catch { }
-    }
-
-    if (-not $SkipSqlProbe) {
-        Write-Host "Checking SQL Server connection to '$Server'..." -ForegroundColor Cyan
-        if (-not (Test-SqlServerConnection -Server $Server -SqlUser $SqlUser -SqlPassword $SqlPassword)) {
-            Write-Warning "Could not connect to SQL Server. Install SQL Server Express / LocalDB, fix the server name, or use SQL auth (-SqlUser/-SqlPassword). The API may still fail until the engine is reachable."
+    if ($ConnectionStringFile) {
+        if (-not (Test-Path -LiteralPath $ConnectionStringFile)) {
+            Write-Error "ConnectionStringFile not found: $ConnectionStringFile"
         }
-        else {
-            Write-Host "SQL Server connection OK." -ForegroundColor Green
+        $conn = (Get-Content -LiteralPath $ConnectionStringFile -Raw -Encoding UTF8).Trim()
+        if ([string]::IsNullOrWhiteSpace($conn)) {
+            Write-Error "Connection string file is empty."
         }
-    }
-
-    if (-not (Test-SsmsInstalled)) {
-        Write-Host "SSMS (SQL Server Management Studio) is not detected in default install paths." -ForegroundColor Yellow
-        Write-Host "  SSMS is optional for running the app but useful for inspecting AccountingDb. Download: https://aka.ms/ssmsfullsetup" -ForegroundColor DarkGray
-        if ($AutoInstallSsms) {
-            Install-SsmsWithWinget
+        if ($conn -match 'localdb' -and (Test-Command 'sqllocaldb')) {
+            Write-Host "Ensuring SQL Server LocalDB is running..." -ForegroundColor Cyan
+            try {
+                sqllocaldb start 'mssqllocaldb' 2>$null | Out-Null
+            }
+            catch { }
         }
+        Write-Host "Using SQL connection string from file (SSMS-style)." -ForegroundColor Green
     }
     else {
-        Write-Host "SSMS appears to be installed." -ForegroundColor Green
+        if ($Server -match 'localdb' -and (Test-Command 'sqllocaldb')) {
+            Write-Host "Ensuring SQL Server LocalDB is running..." -ForegroundColor Cyan
+            try {
+                sqllocaldb start 'mssqllocaldb' 2>$null | Out-Null
+            }
+            catch { }
+        }
+
+        if (-not $SkipSqlProbe) {
+            Write-Host "Checking SQL Server connection to '$Server'..." -ForegroundColor Cyan
+            if (-not (Test-SqlServerConnection -Server $Server -SqlUser $SqlUser -SqlPassword $SqlPassword)) {
+                Write-Host 'Connection test did not succeed; configuration was still written. Repair LocalDB/ODBC or use -SkipSqlProbe if needed.' -ForegroundColor Yellow
+            }
+            else {
+                Write-Host "SQL Server connection OK." -ForegroundColor Green
+            }
+        }
+
+        if (-not (Test-SsmsInstalled)) {
+            Write-Host "SSMS (SQL Server Management Studio) is not detected in default install paths." -ForegroundColor Yellow
+            Write-Host "  SSMS is optional for running the app but useful for inspecting AccountingDb. Download: https://aka.ms/ssmsfullsetup" -ForegroundColor DarkGray
+            if ($AutoInstallSsms) {
+                Install-SsmsWithWinget
+            }
+        }
+        else {
+            Write-Host "SSMS appears to be installed." -ForegroundColor Green
+        }
+
+        $conn = Build-SqlServerConnectionString -Server $Server -Database $Database -SqlUser $SqlUser -SqlPassword $SqlPassword
+        Write-Host "Using SQL Server provider (SQL Server + SSMS). Database is created on first API run, or use -CreateDatabase with sqlcmd." -ForegroundColor Green
+
+        if ($CreateDatabase) {
+            $dbScript = Join-Path $PSScriptRoot 'Install-SqlServerDatabase.ps1'
+            if (Test-Path $dbScript) {
+                Write-Host "Running Install-SqlServerDatabase.ps1 ..." -ForegroundColor Cyan
+                if ($SqlUser) {
+                    if ($SqlPasswordFile) {
+                        & $dbScript -Server $Server -Database $Database -UserName $SqlUser -PasswordFile $SqlPasswordFile
+                    }
+                    else {
+                        & $dbScript -Server $Server -Database $Database -UserName $SqlUser -Password $SqlPassword
+                    }
+                }
+                else {
+                    & $dbScript -Server $Server -Database $Database
+                }
+            }
+            else {
+                Write-Warning 'Install-SqlServerDatabase.ps1 not found next to this script; skipping -CreateDatabase.'
+            }
+        }
     }
 
-    $conn = Build-SqlServerConnectionString -Server $Server -Database $Database -SqlUser $SqlUser -SqlPassword $SqlPassword
     $config = @{
         Api = @{
             EnableSwagger = $true
@@ -192,28 +285,6 @@ if ($Provider -eq 'SqlServer') {
         }
         ConnectionStrings = @{
             DefaultConnection = $conn
-        }
-    }
-    Write-Host "Using SQL Server provider (SQL Server + SSMS). Database is created on first API run, or use -CreateDatabase with sqlcmd." -ForegroundColor Green
-
-    if ($CreateDatabase) {
-        $dbScript = Join-Path $PSScriptRoot 'Install-SqlServerDatabase.ps1'
-        if (Test-Path $dbScript) {
-            Write-Host "Running Install-SqlServerDatabase.ps1 ..." -ForegroundColor Cyan
-            if ($SqlUser) {
-                if ($SqlPasswordFile) {
-                    & $dbScript -Server $Server -Database $Database -UserName $SqlUser -PasswordFile $SqlPasswordFile
-                }
-                else {
-                    & $dbScript -Server $Server -Database $Database -UserName $SqlUser -Password $SqlPassword
-                }
-            }
-            else {
-                & $dbScript -Server $Server -Database $Database
-            }
-        }
-        else {
-            Write-Warning "Install-SqlServerDatabase.ps1 not found next to this script; skipping -CreateDatabase."
         }
     }
 }
@@ -253,9 +324,9 @@ Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Cyan
 Write-Host "  1. Start the API (self-contained): double-click Run-Accounting.cmd or run Accounting.Api.exe"
 Write-Host "  2. Open http://localhost:$HttpPort/swagger (Swagger is enabled in appsettings.Local.json)"
-if ($Provider -eq 'SqlServer') {
+if ($Provider -eq 'SqlServer' -and -not $ConnectionStringFile) {
     Write-Host ""
-    Write-Host 'SSMS (SQL Server Management Studio) — use the same server and database as the app:' -ForegroundColor Cyan
+    Write-Host 'SSMS (SQL Server Management Studio) - use the same server and database as the app:' -ForegroundColor Cyan
     Write-Host ('  Server name:     ' + $Server)
     if ($SqlUser) {
         Write-Host '  Authentication:  SQL Server Authentication'
@@ -270,9 +341,51 @@ if ($Provider -eq 'SqlServer') {
     Write-Host '  If connection fails: install SQL Server Express LocalDB or SQL Server, or install SSMS from Microsoft.'
     Write-Host '  LocalDB: run  sqllocaldb start mssqllocaldb  if the server name is (localdb)\mssqllocaldb'
 }
+elseif ($Provider -eq 'SqlServer' -and $ConnectionStringFile) {
+    Write-Host ""
+    Write-Host 'Connection string was written from your file. Use the same database in SSMS as in that string.' -ForegroundColor Cyan
+}
 Write-Host ""
 
-if ($Launch) {
-    $env:ASPNETCORE_ENVIRONMENT = 'Production'
+if ($RegisterStartup) {
+    try {
+        $startup = [Environment]::GetFolderPath('Startup')
+        $runCmd = Join-Path $ApiPath 'Run-Accounting.cmd'
+        if (Test-Path -LiteralPath $runCmd) {
+            $lnk = Join-Path $startup 'Accounting API.lnk'
+            $WshShell = New-Object -ComObject WScript.Shell
+            $sc = $WshShell.CreateShortcut($lnk)
+            $sc.TargetPath = $runCmd
+            $sc.WorkingDirectory = $ApiPath
+            $sc.Description = 'Accounting API (self-hosted)'
+            $sc.Save()
+            Write-Host "Registered Windows startup shortcut: $lnk" -ForegroundColor Green
+        }
+        else {
+            Write-Warning "Run-Accounting.cmd not found; skipping startup registration."
+        }
+    }
+    catch {
+        Write-Warning "Could not register startup shortcut: $_"
+    }
+}
+
+$startApi = $Launch -or $LaunchDesktop
+if ($startApi) {
+    $env:ASPNETCORE_ENVIRONMENT = "Production"
     Start-Process -FilePath $exe -WorkingDirectory $ApiPath
+    Write-Host "Started Accounting.Api.exe (Production)." -ForegroundColor Green
+}
+
+if ($LaunchDesktop) {
+    $desk = Join-Path $ApiPath 'Desktop\Accounting.Desktop.exe'
+    if (Test-Path -LiteralPath $desk) {
+        Write-Host "Waiting for API to listen, then starting desktop client..." -ForegroundColor Cyan
+        Start-Sleep -Seconds 12
+        Start-Process -FilePath $desk -WorkingDirectory (Join-Path $ApiPath 'Desktop')
+        Write-Host "Started Accounting.Desktop.exe." -ForegroundColor Green
+    }
+    else {
+        Write-Warning "Desktop\Accounting.Desktop.exe not found; skipping desktop launch."
+    }
 }

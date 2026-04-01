@@ -61,6 +61,24 @@ if (Test-Path $runCmd) {
     Copy-Item -Force $runCmd (Join-Path $OutputPath 'Run-Accounting.cmd')
 }
 
+$installBat = Join-Path $root 'install\INSTALL.bat'
+if (Test-Path $installBat) {
+    Copy-Item -Force $installBat (Join-Path $OutputPath 'INSTALL.bat')
+}
+$readmeFirst = Join-Path $root 'install\README-FIRST.txt'
+if (Test-Path $readmeFirst) {
+    Copy-Item -Force $readmeFirst (Join-Path $OutputPath 'README-FIRST.txt')
+}
+
+$uninstallCmd = Join-Path $root 'install\Uninstall-Accounting.cmd'
+if (Test-Path $uninstallCmd) {
+    Copy-Item -Force $uninstallCmd (Join-Path $OutputPath 'Uninstall-Accounting.cmd')
+}
+$uninstallPs1 = Join-Path $root 'install\Uninstall-Accounting.ps1'
+if (Test-Path $uninstallPs1) {
+    Copy-Item -Force $uninstallPs1 (Join-Path $OutputPath 'Uninstall-Accounting.ps1')
+}
+
 $readme = Join-Path $root 'install\README.txt'
 if (Test-Path $readme) {
     Copy-Item -Force $readme (Join-Path $OutputPath 'README.txt')

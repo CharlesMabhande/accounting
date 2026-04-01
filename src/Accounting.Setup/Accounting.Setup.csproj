@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <Version>1.0.0</Version>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
@@ -7,9 +8,12 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>Accounting.Setup</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon />
-    <AssemblyName>Setup</AssemblyName>
-    <Product>Accounting Installer</Product>
-    <Description>Installs and configures the Accounting API (SQL Server / SSMS)</Description>
+    <ApplicationIcon>Assets\CharlzTechLogo.ico</ApplicationIcon>
+    <AssemblyName>CharlzTech</AssemblyName>
+    <Product>CharlzTech Accounting</Product>
+    <Description>Installs CharlzTech Accounting — API, desktop client, and SQL Server configuration</Description>
   </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\CharlzTechLogo.png" />
+  </ItemGroup>
 </Project>

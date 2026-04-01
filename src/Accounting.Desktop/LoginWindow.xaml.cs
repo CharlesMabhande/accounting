@@ -17,6 +17,42 @@ public partial class LoginWindow : Window
         UserBox.Text = "admin";
     }
 
+    private async void LoginWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        SignInBtn.IsEnabled = false;
+        ApiStatusText.Text = "Preparing connection…";
+        var baseUrl = AccountingApiSettings.LoadBaseUrl();
+        try
+        {
+            if (AccountingApiHostLauncher.IsLocalApiBase(baseUrl))
+            {
+                ApiStatusText.Text = "Starting Accounting API…";
+                var ok = await AccountingApiHostLauncher.EnsureLocalApiRunningAsync(
+                    baseUrl,
+                    msg => Dispatcher.Invoke(() => ApiStatusText.Text = msg)).ConfigureAwait(true);
+                ApiStatusText.Text = ok
+                    ? "API ready."
+                    : "Could not start the API automatically. Run Run-Accounting.cmd from the install folder, then try Sign in.";
+            }
+            else
+            {
+                ApiStatusText.Text = "Checking API…";
+                var ok = await AccountingApiHostLauncher.IsHealthyAsync(baseUrl).ConfigureAwait(true);
+                ApiStatusText.Text = ok
+                    ? "API reachable."
+                    : $"Cannot reach {baseUrl}. Check network or VPN.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ApiStatusText.Text = ex.Message;
+        }
+        finally
+        {
+            SignInBtn.IsEnabled = true;
+        }
+    }
+
     private async void SignIn_Click(object sender, RoutedEventArgs e)
     {
         try

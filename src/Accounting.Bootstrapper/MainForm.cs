@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 
 namespace Accounting.Bootstrapper;
 
@@ -14,13 +15,28 @@ internal sealed class MainForm : Form
     {
         Text = "Accounting — Offline setup";
         StartPosition = FormStartPosition.CenterScreen;
-        MinimumSize = new Size(600, 480);
+        MinimumSize = new Size(600, 500);
         Font = new Font("Segoe UI", 9f);
+
+        var logo = new PictureBox
+        {
+            Location = new Point(16, 12),
+            Size = new Size(64, 64),
+            SizeMode = PictureBoxSizeMode.Zoom,
+            BackColor = Color.Transparent
+        };
+        try
+        {
+            var img = LoadEmbeddedLogo();
+            if (img is not null)
+                logo.Image = img;
+        }
+        catch { /* optional branding */ }
 
         var title = new Label
         {
             AutoSize = true,
-            Location = new Point(16, 16),
+            Location = new Point(88, 16),
             Text = "Offline bundle (no Internet required on the target PC)",
             Font = new Font(Font, FontStyle.Bold)
         };
@@ -28,16 +44,16 @@ internal sealed class MainForm : Form
         var hint = new Label
         {
             AutoSize = false,
-            Location = new Point(16, 44),
-            Size = new Size(560, 60),
+            Location = new Point(88, 44),
+            Size = new Size(488, 60),
             Text = "This folder must contain AccountingInstaller\\ next to this exe (from build\\Build-OfflineBundle.ps1). " +
-                   "The API is self-contained (no .NET SDK install). Optional: place VC++ / SQL LocalDB installers in the redist\\ folder, then run step 1."
+                   "Includes API, desktop client, and Setup.exe. Optional: place VC++ / SQL LocalDB installers in redist\\, then run step 1."
         };
 
-        var lblDest = new Label { AutoSize = true, Location = new Point(16, 112), Text = "Install application to:" };
+        var lblDest = new Label { AutoSize = true, Location = new Point(16, 120), Text = "Install application to:" };
         _destBox = new TextBox
         {
-            Location = new Point(16, 132),
+            Location = new Point(16, 140),
             Width = 440,
             Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
         };
@@ -45,7 +61,7 @@ internal sealed class MainForm : Form
         _browseBtn = new Button
         {
             Text = "Browse…",
-            Location = new Point(468, 130),
+            Location = new Point(468, 138),
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         _browseBtn.Click += (_, _) => BrowseDest();
@@ -53,7 +69,7 @@ internal sealed class MainForm : Form
         _redistBtn = new Button
         {
             Text = "1 — Install optional redistributables (from redist\\)",
-            Location = new Point(16, 172),
+            Location = new Point(16, 180),
             Width = 360,
             Height = 32
         };
@@ -62,27 +78,27 @@ internal sealed class MainForm : Form
         _installBtn = new Button
         {
             Text = "2 — Copy Accounting and run configuration",
-            Location = new Point(384, 172),
+            Location = new Point(384, 180),
             Width = 200,
             Height = 32,
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         _installBtn.Click += async (_, _) => await RunInstallAsync();
 
-        var lblLog = new Label { AutoSize = true, Location = new Point(16, 218), Text = "Log:" };
+        var lblLog = new Label { AutoSize = true, Location = new Point(16, 226), Text = "Log:" };
         _logBox = new TextBox
         {
             Multiline = true,
             ReadOnly = true,
             ScrollBars = ScrollBars.Vertical,
-            Location = new Point(16, 238),
+            Location = new Point(16, 246),
             Size = new Size(560, 200),
             Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
         };
 
         Controls.AddRange(new Control[]
         {
-            title, hint, lblDest, _destBox, _browseBtn, _redistBtn, _installBtn, lblLog, _logBox
+            logo, title, hint, lblDest, _destBox, _browseBtn, _redistBtn, _installBtn, lblLog, _logBox
         });
 
         Load += (_, _) =>
@@ -102,6 +118,21 @@ internal sealed class MainForm : Form
             var programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
             _destBox.Text = Path.Combine(programFiles, "AccountingApi");
         };
+    }
+
+    private static Image? LoadEmbeddedLogo()
+    {
+        var asm = Assembly.GetExecutingAssembly();
+        foreach (var name in asm.GetManifestResourceNames())
+        {
+            if (!name.EndsWith("CharlzTechLogo.png", StringComparison.OrdinalIgnoreCase))
+                continue;
+            using var s = asm.GetManifestResourceStream(name);
+            if (s is not null)
+                return new Bitmap(s);
+        }
+
+        return null;
     }
 
     private static string? ResolvePayloadDirectory()

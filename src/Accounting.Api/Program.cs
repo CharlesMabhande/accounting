@@ -19,7 +19,9 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
-    builder.WebHost.UseUrls("http://0.0.0.0:8080");
+    // Bind IPv4 and IPv6; http://0.0.0.0:8080 alone does not accept ::1, so clients using
+    // "localhost" (often resolved to IPv6 first on Windows) get connection refused.
+    builder.WebHost.UseUrls("http://0.0.0.0:8080", "http://[::]:8080");
 }
 
 if (DatabaseProvider.IsSqlServer(builder.Configuration))

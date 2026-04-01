@@ -11,10 +11,15 @@ How to compile to .EXE
      .\build\Build-Setup.ps1
 
 3) Output (self-contained .exe — no .NET install needed on other PCs to RUN them):
-     dist\AccountingInstaller\Setup.exe
+     dist\AccountingInstaller\Setup.exe              (installer wizard — CharlzTech icon)
      dist\AccountingInstaller\Accounting.Api.exe
+     dist\AccountingInstaller\Desktop\Accounting.Desktop.exe
 
    Copy the whole "AccountingInstaller" folder to another PC, or zip it.
+
+   Optional offline bundle (copies to Program Files + runs config):
+     .\build\Build-OfflineBundle.ps1
+     → dist\AccountingOffline\AccountingOfflineSetup.exe (same branding)
 
 Notes
 -----

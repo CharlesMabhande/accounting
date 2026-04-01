@@ -2,6 +2,10 @@ bin/
 obj/
 packages/
 dist/
+# Built installers copied to repo root for convenience (large binaries)
+CharlzTech.exe
+CharlzTech.msi
+Screenshots/
 .vs/
 appsettings.Local.json
 **/Data/*.db

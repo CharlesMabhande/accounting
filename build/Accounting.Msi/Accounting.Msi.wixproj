@@ -1,0 +1,16 @@
+<Project Sdk="WixToolset.Sdk/6.0.2">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <OutputName>CharlzTech</OutputName>
+    <!-- Payload must exist (run Build-Setup.ps1 first). -->
+    <PayloadRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\dist\AccountingInstaller'))</PayloadRoot>
+    <IconSource>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\src\Accounting.Setup\Assets'))</IconSource>
+    <ProductVersion>1.0.0</ProductVersion>
+    <DefineConstants>PayloadRoot=$(PayloadRoot)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <BindPath Include="$(PayloadRoot)" BindName="Payload" />
+    <BindPath Include="$(IconSource)" BindName="IconSource" />
+  </ItemGroup>
+</Project>

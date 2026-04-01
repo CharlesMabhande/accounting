@@ -8,7 +8,11 @@
     <RootNamespace>Accounting.Bootstrapper</RootNamespace>
     <AssemblyName>AccountingOfflineSetup</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\CharlzTechLogo.ico</ApplicationIcon>
     <Product>Accounting Offline Installer</Product>
     <Description>Copies self-contained Accounting API and runs offline configuration (no Internet required).</Description>
   </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\CharlzTechLogo.png" />
+  </ItemGroup>
 </Project>

@@ -31,10 +31,14 @@ FULL INSTALLER (GUI Setup.exe)
 After building on a developer PC:
   build\Build-Setup.ps1
 
-This creates dist\AccountingInstaller\ containing Setup.exe + Accounting.Api + scripts.
-On the target PC: double-click Setup.exe
-  - Step 1 runs the PowerShell install (appsettings.Local.json + firewall).
-  - Step 2 starts the API. Use "Desktop shortcut" if you want a link.
+This creates dist\AccountingInstaller\ containing Setup.exe + Accounting.Api + Desktop\Accounting.Desktop.exe + scripts.
+On the target PC: double-click Setup.exe (CharlzTech-branded icon). The wizard will:
+  - Welcome: what is installed (API + desktop + config).
+  - Installation folder: default %LocalAppData%\Accounting (no admin). Optionally copy all files from the USB/zip folder.
+  - SQL Server: instance name; optional skip SQL probe / skip firewall.
+  - Progress: runs Install-Accounting.ps1 (appsettings.Local.json + optional firewall).
+  - Finish: start API, start desktop, shortcuts, open Swagger (http://localhost:8080/swagger).
+  Desktop is preconfigured for http://localhost:8080 (production API port).
 
 Alternatively (no GUI):
 1. Copy the published folder (e.g. dist\AccountingApi\ or dist\AccountingInstaller\) to the PC.

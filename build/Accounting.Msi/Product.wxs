@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <!-- UpgradeCode must stay stable across product upgrades. Icon matches CharlzTech setup branding. -->
+  <Package Name="CharlzTech Accounting"
+           Manufacturer="CharlzTech"
+           Version="1.0.0.0"
+           UpgradeCode="E8F1E9C7-5D3A-4B2F-9E6D-1A2B3C4D5E6F"
+           InstallerVersion="500"
+           Compressed="yes"
+           Scope="perMachine">
+    <Icon Id="ProductIcon" SourceFile="!(bindpath.IconSource)\CharlzTechLogo.ico" />
+    <Property Id="ARPPRODUCTICON" Value="ProductIcon" />
+    <SummaryInformation Description="CharlzTech Accounting — full install (API + desktop). Run CharlzTech.exe after install to configure SQL."
+                        Comments="Self-contained accounting system. Configure with CharlzTech.exe using your SSMS connection string." />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of CharlzTech Accounting is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+    <Feature Id="Main" Title="CharlzTech Accounting" Level="1">
+      <Files Include="!(bindpath.Payload)\**" />
+    </Feature>
+  </Package>
+</Wix>

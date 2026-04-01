@@ -40,7 +40,12 @@ echo SUCCESS - Output folder:
 echo   %~dp0dist\AccountingInstaller
 echo.
 echo Main executables:
-echo   Setup.exe          - installer wizard
-echo   Accounting.Api.exe - web API server
+echo   Setup.exe                    - installer wizard (CharlzTech icon)
+echo   Accounting.Api.exe         - web API server (production: port 8080)
+echo   Desktop\Accounting.Desktop.exe - WPF client (same icon)
+echo.
+echo For USB / offline one-step copy to Program Files, also run:
+echo   build\Build-OfflineBundle.ps1
+echo   (produces AccountingOfflineSetup.exe + AccountingInstaller folder)
 echo.
 pause
