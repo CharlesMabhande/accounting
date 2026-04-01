@@ -4,6 +4,18 @@ Enterprise-style accounting workspace: **ASP.NET Core Web API** backend and **WP
 
 ---
 
+## Screenshots
+
+UI captures for the installer and client live in **[`Screenshots/`](Screenshots/)** (see also [`Screenshots/README.md`](Screenshots/README.md)). Images are referenced below for quick viewing on GitHub.
+
+![Setup wizard — welcome](Screenshots/Screenshot%202026-04-01%20114903.png)
+
+![Setup wizard — configuration](Screenshots/Screenshot%202026-04-01%20114959.png)
+
+![Desktop — sign in](Screenshots/Screenshot%202026-04-01%20115115.png)
+
+---
+
 ## Table of contents
 
 1. [Requirements](#requirements)
